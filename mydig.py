@@ -1,30 +1,26 @@
-import dns.resolver
-import time
+import dns.name
+import dns.rdataclass
+import dns.rdatatype
+import dns.message
+import dns.query
 
-def resolve_dns(domain_name):
-    resolver = dns.resolver.Resolver()
-    resolver.timeout = 5
-    resolver.lifetime = 5
+domain = "www.cnn.com"
+nameserver = "8.8.8.8"
 
-    query_start_time = time.time()
 
-    try:
-        answers = resolver.query(domain_name, 'A')
-    except dns.exception.DNSException as e:
-        print(f'Error: {e}')
-        return
+#print(dns.name.from_text('www.cnn.com'))
+#print(dns.rdataclass.from_text('IN'))
+#print(dns.rdatatype.from_text('A'))
 
-    query_end_time = time.time()
-    
-    print(f'\nQUESTION SECTION:')
-    print(f'{domain_name}. IN A')
-    print(f'\nANSWER SECTION:')
-    for answer in answers:
-        print(f'{domain_name}. IN A {answer}')
 
-    print(f'\nQuery time: {query_end_time - query_start_time} seconds')
-    print(f'WHEN: {time.asctime()}')
+query = dns.message.make_query(domain, dns.rdatatype.from_text('A'))
+print(query)
+response = dns.query.udp(query, nameserver)
+for rrset in response.answer:
+    for rdata in rrset:
+        print(rdata)
 
-domain_name = input('Enter the domain name: ')
-resolve_dns(domain_name)
-
+#print(response)
+#rrset = response.answer[0]
+#for rdata in rrset:
+#    print(rdata)
