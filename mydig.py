@@ -4,26 +4,22 @@ import dns.rdatatype
 import dns.message
 import dns.query
 
-domain = 'www.netflix.com'
+domain = 'www.cnn.com'
 server = '198.41.0.4'
 rdatatype = dns.rdatatype.from_text('A')
 
-query = dns.message.make_query(domain, rdatatype)
-response = dns.query.udp(query, server)
-print(1)
-print(response)
 
-server = str(response.additional[0][0])
-query = dns.message.make_query(domain, rdatatype)
-response = dns.query.udp(query, server)
-print(2)
-print(response)
 
-server = str(response.additional[0][0])
-query = dns.message.make_query(domain, rdatatype)
-response = dns.query.udp(query, server)
-print(3)
-print(response)
+def do_query(domain_name, server):
+    query = dns.message.make_query(domain, rdatatype)
+    response = dns.query.udp(query, server) 
+    if len(response.answer) == 0:
+        server = str(response.additional[0][0])
+        return do_query(domain_name, server)
+    return(response)
+
+result = do_query(domain, server)
+print(result)
 
 
 
