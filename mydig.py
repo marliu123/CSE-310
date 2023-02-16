@@ -4,23 +4,37 @@ import dns.rdatatype
 import dns.message
 import dns.query
 
-domain = "www.cnn.com"
-nameserver = "8.8.8.8"
+domain = 'www.netflix.com'
+server = '198.41.0.4'
+rdatatype = dns.rdatatype.from_text('A')
+
+query = dns.message.make_query(domain, rdatatype)
+response = dns.query.udp(query, server)
+print(1)
+print(response)
+
+server = str(response.additional[0][0])
+query = dns.message.make_query(domain, rdatatype)
+response = dns.query.udp(query, server)
+print(2)
+print(response)
+
+server = str(response.additional[0][0])
+query = dns.message.make_query(domain, rdatatype)
+response = dns.query.udp(query, server)
+print(3)
+print(response)
 
 
-#print(dns.name.from_text('www.cnn.com'))
-#print(dns.rdataclass.from_text('IN'))
-#print(dns.rdatatype.from_text('A'))
 
 
-query = dns.message.make_query(domain, dns.rdatatype.from_text('A'))
-print(query)
-response = dns.query.udp(query, nameserver)
-for rrset in response.answer:
-    for rdata in rrset:
-        print(rdata)
 
-#print(response)
-#rrset = response.answer[0]
-#for rdata in rrset:
-#    print(rdata)
+
+
+
+
+
+
+
+
+
