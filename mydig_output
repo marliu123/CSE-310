@@ -1,0 +1,12 @@
+# we receive this output if we put in www.cnn.com as the input
+
+Enter domain name: 
+QUESTION SECTION:
+cnn.com. IN A
+ANSWER SECTION:
+cnn.com. 60 IN A 151.101.195.5
+cnn.com. 60 IN A 151.101.3.5
+cnn.com. 60 IN A 151.101.67.5
+cnn.com. 60 IN A 151.101.131.5
+QUERY TIME: 0.069394 seconds
+WHEN: Friday February 17 2023, 11:46 PM
