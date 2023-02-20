@@ -9,6 +9,7 @@ print('Enter domain name: ')
 domain = "www.netflix.com"
 # I used Verisign as the root server
 server = '198.41.0.4'
+server2 = '8.8.8.8'
 # We will only be querying for the A datatype
 rdatatype = dns.rdatatype.A
 
@@ -16,7 +17,6 @@ rdatatype = dns.rdatatype.A
 def do_query(domain_name, server):
     if("www." in domain_name):
         domain_name = domain_name[4:]
-        print(domain_name)
     query = dns.message.make_query(domain_name, rdatatype)
     response = dns.query.udp(query, server) 
     if len(response.answer) == 0 and len(response.additional) > 0:
@@ -27,7 +27,7 @@ def do_query(domain_name, server):
 # this is the time of before the do_query function is called
 before = datetime.datetime.now()
 
-response = do_query(domain, server)
+response = do_query(domain, server2)
 
 # this is the time of after the do_query function is called
 after = datetime.datetime.now()
@@ -47,15 +47,6 @@ for set in response.answer:
 
 print("QUERY TIME: {} seconds".format(seconds))
 print('WHEN: {}'.format(formattedCurrDate))
-
-
-
-
-
-
-
-
-
 
 
 
