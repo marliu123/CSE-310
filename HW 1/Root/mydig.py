@@ -5,7 +5,7 @@ import dns.query
 import datetime
 
 print('Enter domain name: ')
-domain = "www.amazon.com"
+domain = input()
 # I used Verisign as the root server
 server = '198.41.0.4'
 server2 = '8.8.8.8'
@@ -14,15 +14,18 @@ rdatatype = dns.rdatatype.A
 
 # this function recursively calls itself until an answer is found. We will be using udp to query the dns. 
 def dig(domain_name, server):
-    if("www." in domain_name):
-        domain_name = domain_name[4:]
-    query = dns.message.make_query(domain_name, rdatatype)
-    response = dns.query.udp(query, server) 
-    print(response)
-    if len(response.answer) == 0 and len(response.additional) > 0:
+    try:
+        if("www." in domain_name):
+            domain_name = domain_name[4:]
+        query = dns.message.make_query(domain_name, rdatatype)
+        response = dns.query.udp(query, server) 
+        print(response)
         server = str(response.additional[0][0])
-        return dig(domain_name, server)
-
+        
+        if len(response.answer) == 0 and len(response.additional) > 0:
+            return dig(domain_name, server)
+    except:
+        print("error")
     return(response)
 # this is the time of before the do_query function is called
 before = datetime.datetime.now()
