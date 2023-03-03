@@ -3,11 +3,8 @@ import datetime
 import socket
 from dpkt.compat import compat_ord
 
-
-
-f = open('assignment2.pcap',  'rb')
+f = open('assignment2.pcap', 'rb')
 pcap = dpkt.pcap.Reader(f)
-
 
 def mac_addr(address):
     """Convert a MAC address to a readable/printable string
@@ -18,7 +15,6 @@ def mac_addr(address):
            str: Printable/readable MAC address
     """
     return ':'.join('%02x' % compat_ord(b) for b in address)
-
 
 def inet_to_str(inet):
     """Convert inet object to a string
@@ -34,7 +30,6 @@ def inet_to_str(inet):
     except ValueError:
         return socket.inet_ntop(socket.AF_INET6, inet)
 
-
 for ts, buf in pcap:
     print('Timestamp: ', str(datetime.datetime.utcfromtimestamp(ts)))
     eth = dpkt.ethernet.Ethernet(buf)
@@ -45,7 +40,6 @@ for ts, buf in pcap:
         continue
     ip = eth.data
 
-        
     do_not_fragment = bool(ip.off & dpkt.ip.IP_DF)
     more_fragments = bool(ip.off & dpkt.ip.IP_MF)
     fragment_offset = ip.off & dpkt.ip.IP_OFFMASK
@@ -53,5 +47,12 @@ for ts, buf in pcap:
     print('IP: %s -> %s   (len=%d ttl=%d DF=%d MF=%d offset=%d)\n' % \
         (inet_to_str(ip.src), inet_to_str(ip.dst), ip.len, ip.ttl, do_not_fragment, more_fragments, fragment_offset))
 
-print(eth)
+    if isinstance(ip.data, dpkt.tcp.TCP):
+        tcp = ip.data
+        print('TCP: src_port=%d dst_port=%d' % (tcp.sport, tcp.dport))
+    elif isinstance(ip.data, dpkt.udp.UDP):
+        udp = ip.data
+        print('UDP: src_port=%d dst_port=%d' % (udp.sport, udp.dport))
+    else:
+        print('Unsupported IP protocol: %d' % ip.p)
 
