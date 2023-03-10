@@ -1,9 +1,10 @@
 import dpkt
 import socket
-
+#reads the file
 f = open('assignment2.pcap', 'rb')
 pcap = dpkt.pcap.Reader(f)
 
+#this method converts the address into a readable string
 def convMac(address):
     return ":".join("{:02x}".format(b) for b in address)
 
@@ -12,6 +13,7 @@ flows = {}
 time={}
 congest={}
 
+#this is where most of the bulk information is found. We find all the necessary information for part a and some of part b in this section. 
 print("PART A \n --------------------------------------------------------------")
 for ts, bf in pcap:
     eth = dpkt.ethernet.Ethernet(bf)
@@ -64,7 +66,6 @@ for ts, bf in pcap:
     
 
 f.close()
-
 count = 0
 f2 = open('assignment2.pcap','rb')
 pcap = dpkt.pcap.Reader(f2)
@@ -85,10 +86,11 @@ for ts, buf in pcap:
                 congest[tcp.sport][2]=0
     count+=1
 
-
+# this section finds the throughput for each tcp flow. 
 
 print("TCP FLOW: \n --------------------------------------------------------------")
 j = 1
+
 for key in flows:
     if j >= 4:
         break
@@ -149,7 +151,7 @@ for ts, buf in pcap3:
             duplicates[tcp.dport][tcp.ack]=0
         else:
             duplicates[tcp.dport][tcp.ack]+=1
-
+#this section finds the triple duplicates and timeouts in each tcp flow
 print("\nTriple Duplicate ACKS and Timeout \n --------------------------------------------------------------")
 n = 1
 for val in duplicates:
