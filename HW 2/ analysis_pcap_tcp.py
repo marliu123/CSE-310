@@ -7,12 +7,12 @@ pcap = dpkt.pcap.Reader(f)
 def convMac(address):
     return ":".join("{:02x}".format(b) for b in address)
 
-receiverPort = 80
+recPort = 80
 flows = {}
 time={}
 congest={}
 
-print("PART A")
+print("PART A \n --------------------------------------------------------------")
 for ts, bf in pcap:
     eth = dpkt.ethernet.Ethernet(bf)
     if isinstance(eth.data, dpkt.ip.IP) and isinstance(eth.data.data, dpkt.tcp.TCP):
@@ -45,17 +45,19 @@ for ts, bf in pcap:
             flows[key]['ackNums'].append(tcp.ack)
             flows[key]['windowSizes'].append(tcp.win)
         if tcp.flags == 2:
-            time[tcp.sport] = []
-            congest[tcp.sport] = []
+            if tcp.sport not in time:
+                time[tcp.sport] = []
             time[tcp.sport].append(ts)
-        elif tcp.flags == 17 and tcp.sport == receiverPort:
-            time[tcp.dport].append(ts)
-        elif tcp.flags == 24 and tcp.sport != receiverPort:
+        elif tcp.flags == 17 and tcp.sport == recPort:
+            if tcp.dport in time:
+                time[tcp.dport].append(ts)
+        elif tcp.flags == 24 and tcp.sport != recPort:
+            if tcp.sport not in congest:
+                congest[tcp.sport] = []
             if len(congest[tcp.sport]) < 2:
-                congest[tcp.sport].append(ts)
-                congest[tcp.sport].append(False)
-        elif tcp.flags == 16 and tcp.sport == receiverPort:
-            if not congest[tcp.dport][1]:
+                congest[tcp.sport].extend([ts, False])
+        elif tcp.flags == 16 and tcp.sport == recPort:
+            if tcp.dport in congest and not congest[tcp.dport][1]:
                 congest[tcp.dport][0] = ts - congest[tcp.dport][0]
                 congest[tcp.dport][1] = True
                 congest[tcp.dport].append(0)
@@ -70,7 +72,7 @@ for ts, buf in pcap:
     eth = dpkt.ethernet.Ethernet(buf)
     ip = eth.data
     tcp = ip.data
-    if tcp.flags!=2 and tcp.sport != receiverPort:
+    if tcp.flags!=2 and tcp.sport != recPort:
         if len(tcp)>0:
             if(len(congest[tcp.sport])<3):
                 continue
@@ -120,7 +122,7 @@ for key in flows:
     k += 1
 
 
-print("PART B")
+print("PART B \n --------------------------------------------------------------")
 print("First 3 congestion windows of each flow")
 m = 1
 for val in congest:
@@ -141,14 +143,14 @@ for ts, buf in pcap3:
     tcp = ip.data
     if tcp.flags==2:
         duplicates[tcp.sport]={}
-    elif tcp.flags==16 and tcp.sport == receiverPort:
+    elif tcp.flags==16 and tcp.sport == recPort:
         duplicate = list(duplicates[tcp.dport].keys())
         if not tcp.ack in duplicate:
             duplicates[tcp.dport][tcp.ack]=0
         else:
             duplicates[tcp.dport][tcp.ack]+=1
 
-print("\nTriple Duplicate ACKS and Timeout")
+print("\nTriple Duplicate ACKS and Timeout \n --------------------------------------------------------------")
 n = 1
 for val in duplicates:
     timeout = 0
