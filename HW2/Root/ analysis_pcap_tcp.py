@@ -90,7 +90,6 @@ for ts, buf in pcap:
 
 print("TCP FLOW: \n --------------------------------------------------------------")
 j = 1
-
 for key in flows:
     if j >= 4:
         break
