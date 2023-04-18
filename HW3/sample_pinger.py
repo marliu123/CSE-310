@@ -111,37 +111,35 @@ def doOnePing(destAddr, timeout):
 def ping(host, timeout=1):
     global rtt_min, rtt_max, rtt_sum, rtt_cnt
     cnt = 0
-    faced_error = False
     #timeout=1 means: If one second goes by without a reply from the server,
     #the client assumes that either the client's ping or the server's pong is lost
     dest = gethostbyname(host)
-
+    faced_error = True
     print ("Pinging " + host + " using Python:")
     try:
-        while True:
+        while faced_error:
             delay = doOnePing(dest,timeout)
             if delay == "Request timed out.":
-                faced_error = True
-            print(delay)
-            cnt+=1
+                faced_error = False
+            print("Reply from {}; time = {:.1f} ms".format(dest, delay * 1000))
+            rtt_cnt+=1
+            rtt_sum += delay
+            if delay != "Request timed out.":
+                rtt_min = min(rtt_min, delay)
+                rtt_max = max(rtt_max, delay)
             time.sleep(1)
     
     except KeyboardInterrupt:
-        pass # do nothing on a keyboard interrupt
-    
-    finally:
         print ("\n--- {} ping statistics ---".format(host))
         if rtt_cnt > 0:
             stats_average = rtt_sum / rtt_cnt
-            print("round-trip min/avg/max {:0.3f}/{:0.3f}/{:0.3f} ms".format(rtt_min, stats_average, rtt_max))
+            print("round-trip min/avg/max {:.1f}/{:.1f}/{:.1f} ms".format(rtt_min*1000, stats_average*1000, rtt_max*1000))
         else:
-            print("No packets transmitted.") # handle the case when no packets were sent
+            print("No packets transmitted.")
         
-        # reset the global variables for future pings
-        rtt_min = float('inf')
+        rtt_min = 0
         rtt_max = 0
         rtt_sum = 0
         rtt_cnt = 0
 
-
-ping("127.0.0.1")
+ping("L.root-servers.net")
